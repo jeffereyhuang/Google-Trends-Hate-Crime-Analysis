@@ -1,0 +1,58 @@
+---
+title: "Final Project Data"
+author: "Jeff Huang"
+date: "4/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(readr)
+library(janitor)
+library(ggplot2)
+library(lubridate)
+library(ggthemes)
+
+hate_crimes <- read.csv("hatecrimes2017.csv")
+hate_crimes <- clean_names(hate_crimes)
+
+
+```
+
+# Data
+This dataset uses instances of news reports on Google News to track hate crimes from February 2017 to August 2017. This dataset was obtained from the Propublica Data center (https://www.propublica.org/datastore/dataset/documenting-hate-news-index), compiled with Google News search results. So far, I've looked into the different trends over time, as well as looking for keywords and distribution across cities. In the coming weeks, I plan to look for other trends at different cross sections (activity spikes in certain cities) and to use keywords. I also want to  potentially add in-depth analyses of certain dates around spikes in hate crime activity using Google Trends data. 
+
+
+```{r data cleaning, echo=FALSE, message=FALSE}
+
+crimes_by_day <- hate_crimes %>% 
+  select(article_date) %>% 
+  mutate(crime_day= as.POSIXct(article_date, format = "%m/%d/%y"))%>% 
+  group_by(crime_day) %>% 
+  summarize(num = n())
+
+crimes_by_city <- hate_crimes %>% 
+  select(city, state, keywords) %>% 
+  drop_na(city, state) %>% 
+  mutate(city_state = paste(city,state, sep=", ")) %>% 
+  group_by(city_state) %>% 
+  summarize(city_total = n())
+  
+
+ggplot(crimes_by_day, aes(x=crime_day, y=num)) +
+  geom_line() + 
+  labs(title = "Hate Crime Activity from February to August 2017",
+       subtitle = "Reported in Google News",
+       caption = "Source: Propublica",
+       x = "Month",
+       y = "Number of Results") +
+  # formatting time labels
+  scale_x_datetime(date_labels = "%B") + 
+  # add theme
+  theme_economist()
+
+
+```
+
