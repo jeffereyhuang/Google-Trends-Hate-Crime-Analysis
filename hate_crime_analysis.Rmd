@@ -22,7 +22,7 @@ hate_crimes <- clean_names(hate_crimes)
 ```
 
 # Data
-This dataset uses instances of news reports on Google News to track hate crimes from February 2017 to August 2017. This dataset was obtained from the Propublica Data center (https://www.propublica.org/datastore/dataset/documenting-hate-news-index), compiled with Google News search results. So far, I've looked into the different trends over time, as well as looking for keywords and distribution across cities. In the coming weeks, I plan to look for other trends at different cross sections (activity spikes in certain cities) and to use keywords. I also want to  potentially add in-depth analyses of certain dates around spikes in hate crime activity using Google Trends data. 
+This dataset uses instances of news reports on Google News to track hate crimes from February 2017 to August 2017. This dataset was obtained from the Propublica Data center (https://www.propublica.org/datastore/dataset/documenting-hate-news-index), compiled with Google News search results. So far, I've looked into the different trends over time, as well as looking at types of hate crimes using the title and keywords columns, as well as across cities. In the coming weeks, I plan to look for other trends at different cross sections (activity spikes in certain cities) and to use more keywords. I also want to potentially add in-depth analyses of certain dates around spikes in hate crime activity using Google Trends data. 
 
 
 ```{r data cleaning, echo=FALSE, message=FALSE}
@@ -33,16 +33,33 @@ crimes_by_day <- hate_crimes %>%
   group_by(crime_day) %>% 
   summarize(num = n())
 
+
 crimes_by_city <- hate_crimes %>% 
-  select(city, state, keywords) %>% 
+  select(city, state) %>% 
   drop_na(city, state) %>% 
   mutate(city_state = paste(city,state, sep=", ")) %>% 
   group_by(city_state) %>% 
   summarize(city_total = n())
+
+lgbtq_crimes <- hate_crimes %>% 
+  select(keywords, article_date, article_title) %>% 
+  mutate(crime_day= as.POSIXct(article_date, format = "%m/%d/%y")) %>% 
+  filter(str_detect(keywords, "gay") | str_detect(article_title, "gay")) %>% 
+  group_by(crime_day) %>% 
+  summarize(total = n())
+
+iphobia_crimes <- hate_crimes %>% 
+  select(keywords, article_date, article_title) %>% 
+  mutate(crime_day= as.POSIXct(article_date, format = "%m/%d/%y")) %>% 
+  filter(str_detect(keywords, "muslim") | str_detect(article_title, "muslim")) %>% 
+  group_by(crime_day) %>% 
+  summarize(total = n()) 
   
 
 ggplot(crimes_by_day, aes(x=crime_day, y=num)) +
   geom_line() + 
+  geom_line(data = lgbtq_crimes, aes(x=crime_day, y=total), color = "red") + 
+  geom_line(data = iphobia_crimes, aes(x=crime_day, y=total), color = "blue") +
   labs(title = "Hate Crime Activity from February to August 2017",
        subtitle = "Reported in Google News",
        caption = "Source: Propublica",
