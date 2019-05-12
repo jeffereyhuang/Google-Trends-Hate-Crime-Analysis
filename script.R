@@ -24,7 +24,7 @@ hate_crimes <- read.csv("hatecrimes2017.csv") %>%
 ```
 
 # Trend Analysis
-This dataset uses instances of news reports on Google News to track hate crimes from the Spring/Summer seasons in 2017. This dataset was obtained from the Propublica Data center (https://www.propublica.org/datastore/dataset/documenting-hate-news-index), compiled with Google News search results. So far, I`ve looked into the different trends over time, as well as looking at trends within types of hate crimes using the title and keywords columns. 
+#This dataset uses instances of news reports on Google News to track hate crimes from the Spring/Summer seasons in 2017. This dataset was obtained from the Propublica Data center (https://www.propublica.org/datastore/dataset/documenting-hate-news-index), compiled with Google News search results. So far, I`ve looked into the different trends over time, as well as looking at trends within types of hate crimes using the title and keywords columns. 
 
 
 crimes_by_day <- hate_crimes %>% 
